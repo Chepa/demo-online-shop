@@ -1,0 +1,1141 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Online Shop API",
+        "version": "1.0.0",
+        "description": "API для интернет-магазина"
+    },
+    "servers": [
+        {
+            "url": "/api",
+            "description": "API Server"
+        }
+    ],
+    "components": {
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
+            }
+        },
+        "schemas": {
+            "Category": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "slug": {
+                        "type": "string"
+                    },
+                    "parent_id": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "products_count": {
+                        "type": "integer"
+                    }
+                }
+            },
+            "Product": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "category_id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "slug": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "price": {
+                        "type": "string",
+                        "format": "decimal"
+                    },
+                    "stock": {
+                        "type": "integer"
+                    },
+                    "is_active": {
+                        "type": "boolean"
+                    },
+                    "category": {
+                        "$ref": "#/components/schemas/Category"
+                    }
+                }
+            },
+            "PaginatedProducts": {
+                "type": "object",
+                "properties": {
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Product"
+                        }
+                    },
+                    "current_page": {
+                        "type": "integer"
+                    },
+                    "last_page": {
+                        "type": "integer"
+                    },
+                    "per_page": {
+                        "type": "integer"
+                    },
+                    "total": {
+                        "type": "integer"
+                    }
+                }
+            },
+            "User": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string"
+                    },
+                    "role": {
+                        "type": "string"
+                    }
+                }
+            },
+            "RegisterRequest": {
+                "type": "object",
+                "required": [
+                    "name",
+                    "email",
+                    "password"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email"
+                    },
+                    "password": {
+                        "type": "string",
+                        "format": "password"
+                    },
+                    "password_confirmation": {
+                        "type": "string",
+                        "format": "password"
+                    }
+                }
+            },
+            "LoginRequest": {
+                "type": "object",
+                "required": [
+                    "email",
+                    "password"
+                ],
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "format": "email"
+                    },
+                    "password": {
+                        "type": "string",
+                        "format": "password"
+                    }
+                }
+            },
+            "AuthResponse": {
+                "type": "object",
+                "properties": {
+                    "success": {
+                        "type": "boolean"
+                    },
+                    "data": {
+                        "type": "object",
+                        "properties": {
+                            "user": {
+                                "$ref": "#/components/schemas/User"
+                            },
+                            "token": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "UserResponse": {
+                "type": "object",
+                "properties": {
+                    "success": {
+                        "type": "boolean"
+                    },
+                    "data": {
+                        "type": "object",
+                        "properties": {
+                            "user": {
+                                "$ref": "#/components/schemas/User"
+                            }
+                        }
+                    }
+                }
+            },
+            "CartItem": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "product_id": {
+                        "type": "integer"
+                    },
+                    "quantity": {
+                        "type": "integer"
+                    },
+                    "product": {
+                        "$ref": "#/components/schemas/Product"
+                    }
+                }
+            },
+            "AddToCartRequest": {
+                "type": "object",
+                "required": [
+                    "product_id",
+                    "quantity"
+                ],
+                "properties": {
+                    "product_id": {
+                        "type": "integer"
+                    },
+                    "quantity": {
+                        "type": "integer",
+                        "minimum": 1
+                    }
+                }
+            },
+            "UpdateCartRequest": {
+                "type": "object",
+                "required": [
+                    "quantity"
+                ],
+                "properties": {
+                    "quantity": {
+                        "type": "integer",
+                        "minimum": 1
+                    }
+                }
+            },
+            "Order": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "user_id": {
+                        "type": "integer"
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "total": {
+                        "type": "string",
+                        "format": "decimal"
+                    },
+                    "customer_name": {
+                        "type": "string"
+                    },
+                    "customer_phone": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "address_line": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "city": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "postal_code": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/OrderItem"
+                        }
+                    }
+                }
+            },
+            "OrderItem": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "order_id": {
+                        "type": "integer"
+                    },
+                    "product_id": {
+                        "type": "integer"
+                    },
+                    "quantity": {
+                        "type": "integer"
+                    },
+                    "price": {
+                        "type": "string",
+                        "format": "decimal"
+                    },
+                    "product": {
+                        "$ref": "#/components/schemas/Product"
+                    }
+                }
+            },
+            "CreateOrderRequest": {
+                "type": "object",
+                "required": [
+                    "customer_name"
+                ],
+                "properties": {
+                    "customer_name": {
+                        "type": "string"
+                    },
+                    "customer_phone": {
+                        "type": "string"
+                    },
+                    "address_line": {
+                        "type": "string"
+                    },
+                    "city": {
+                        "type": "string"
+                    },
+                    "postal_code": {
+                        "type": "string"
+                    }
+                }
+            },
+            "UpdateOrderStatusRequest": {
+                "type": "object",
+                "required": [
+                    "status"
+                ],
+                "properties": {
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "pending",
+                            "paid",
+                            "shipped",
+                            "completed",
+                            "cancelled"
+                        ]
+                    }
+                }
+            },
+            "CreateCategoryRequest": {
+                "type": "object",
+                "required": [
+                    "name",
+                    "slug"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "slug": {
+                        "type": "string"
+                    },
+                    "parent_id": {
+                        "type": "integer",
+                        "nullable": true
+                    }
+                }
+            },
+            "UpdateCategoryRequest": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "slug": {
+                        "type": "string"
+                    },
+                    "parent_id": {
+                        "type": "integer",
+                        "nullable": true
+                    }
+                }
+            },
+            "CreateProductRequest": {
+                "type": "object",
+                "required": [
+                    "category_id",
+                    "name",
+                    "slug",
+                    "price",
+                    "stock"
+                ],
+                "properties": {
+                    "category_id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "slug": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "price": {
+                        "type": "number"
+                    },
+                    "stock": {
+                        "type": "integer"
+                    },
+                    "is_active": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "UpdateProductRequest": {
+                "type": "object",
+                "properties": {
+                    "category_id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "slug": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "price": {
+                        "type": "number"
+                    },
+                    "stock": {
+                        "type": "integer"
+                    },
+                    "is_active": {
+                        "type": "boolean"
+                    }
+                }
+            }
+        }
+    },
+    "paths": {
+        "/api/categories": {
+            "get": {
+                "summary": "Get all categories",
+                "tags": [
+                    "Categories"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of categories",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Category"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/products": {
+            "get": {
+                "summary": "Get products",
+                "tags": [
+                    "Products"
+                ],
+                "parameters": [
+                    {
+                        "name": "category_id",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "min_price",
+                        "in": "query",
+                        "schema": {
+                            "type": "number"
+                        }
+                    },
+                    {
+                        "name": "max_price",
+                        "in": "query",
+                        "schema": {
+                            "type": "number"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of products",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PaginatedProducts"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/products/{id}": {
+            "get": {
+                "summary": "Get product by ID",
+                "tags": [
+                    "Products"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Product details",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Product"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/register": {
+            "post": {
+                "summary": "Register new user",
+                "tags": [
+                    "Auth"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RegisterRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "User registered successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AuthResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/login": {
+            "post": {
+                "summary": "Login user",
+                "tags": [
+                    "Auth"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LoginRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Login successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AuthResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid credentials"
+                    }
+                }
+            }
+        },
+        "/api/user": {
+            "get": {
+                "summary": "Get current user",
+                "tags": [
+                    "Auth"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Current user info",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/logout": {
+            "post": {
+                "summary": "Logout user",
+                "tags": [
+                    "Auth"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Logout successful"
+                    }
+                }
+            }
+        },
+        "/api/cart": {
+            "get": {
+                "summary": "Get cart items",
+                "tags": [
+                    "Cart"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Cart items",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/CartItem"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "summary": "Add product to cart",
+                "tags": [
+                    "Cart"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AddToCartRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Product added to cart",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CartItem"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/cart/{id}": {
+            "put": {
+                "summary": "Update cart item quantity",
+                "tags": [
+                    "Cart"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateCartRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Cart item updated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CartItem"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "summary": "Remove item from cart",
+                "tags": [
+                    "Cart"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Item removed"
+                    }
+                }
+            }
+        },
+        "/api/orders": {
+            "get": {
+                "summary": "Get user orders",
+                "tags": [
+                    "Orders"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of orders",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Order"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "summary": "Create order from cart",
+                "tags": [
+                    "Orders"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateOrderRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Order created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Order"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/admin/orders": {
+            "get": {
+                "summary": "Get all orders (Admin)",
+                "tags": [
+                    "Admin"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of all orders",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Order"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/admin/orders/{id}": {
+            "patch": {
+                "summary": "Update order status (Admin)",
+                "tags": [
+                    "Admin"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateOrderStatusRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Order status updated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Order"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/admin/categories": {
+            "post": {
+                "summary": "Create category (Admin)",
+                "tags": [
+                    "Admin"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateCategoryRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Category created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Category"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/admin/categories/{id}": {
+            "put": {
+                "summary": "Update category (Admin)",
+                "tags": [
+                    "Admin"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateCategoryRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Category updated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Category"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "summary": "Delete category (Admin)",
+                "tags": [
+                    "Admin"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Category deleted"
+                    }
+                }
+            }
+        },
+        "/api/admin/products": {
+            "post": {
+                "summary": "Create product (Admin)",
+                "tags": [
+                    "Admin"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateProductRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Product created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Product"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/admin/products/{id}": {
+            "put": {
+                "summary": "Update product (Admin)",
+                "tags": [
+                    "Admin"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateProductRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Product updated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Product"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "summary": "Delete product (Admin)",
+                "tags": [
+                    "Admin"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Product deleted"
+                    }
+                }
+            }
+        }
+    }
+}
