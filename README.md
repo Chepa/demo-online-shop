@@ -15,7 +15,7 @@ cp src/.env.example src/.env
 ### 5. Установка зависимостей Laravel
 
 ```bash
-# Установка PHP зависимостей (если вы не устанавливали Laravel а он уже был в репозитории)
+# Установка PHP зависимостей
 docker exec app composer install
 
 # Установка npm зависимостей
@@ -37,6 +37,3 @@ docker exec app php artisan test
 ## OpenAPI документация
 http://localhost/swagger
 
-## Описание
-
-# demo-online-shop
