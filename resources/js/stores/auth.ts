@@ -20,11 +20,7 @@ export const useAuthStore = defineStore('auth', () => {
     const isAdmin = computed(() => user.value?.role === 'admin')
 
     async function register(
-        name: string,
-        email: string,
-        password: string,
-        passwordConfirmation: string
-    ): Promise<
+        name: string, email: string, password: string, passwordConfirmation: string, role: string    ): Promise<
         | { success: true }
         | { success: false; errors: Record<string, string[]> }
     > {
@@ -36,7 +32,13 @@ export const useAuthStore = defineStore('auth', () => {
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
                 },
-                body: JSON.stringify({name, email, password, password_confirmation: passwordConfirmation})
+                body: JSON.stringify({
+                    name,
+                    email,
+                    password,
+                    password_confirmation: passwordConfirmation,
+                    role
+                })
             })
 
             const result = await response.json() as AuthSuccessResponse | RegisterErrorResponse

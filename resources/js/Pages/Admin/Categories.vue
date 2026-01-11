@@ -15,6 +15,7 @@ const saving = ref(false);
 const formErrors = ref<Record<string, string>>({});
 
 const form = reactive({
+    id: null as number | null,
     name: '',
     slug: '',
     parent_id: null as number | null,
@@ -48,7 +49,7 @@ const openCreateModal = () => {
 const openEditModal = (category: Category) => {
     editingCategory.value = category;
     form.name = category.name;
-    form.slug = category.slug;
+    form.slug = category.slug || '';
     form.parent_id = category.parent_id || null;
     formErrors.value = {};
     showModal.value = true;
@@ -70,6 +71,7 @@ const saveCategory = async () => {
         if (editingCategory.value) {
             // Обновление существующей категории
             const { data } = await api.put<Category>(`/admin/categories/${editingCategory.value.id}`, {
+                id: editingCategory.value.id,
                 name: form.name,
                 slug: form.slug,
                 parent_id: form.parent_id,
@@ -101,7 +103,7 @@ const saveCategory = async () => {
         closeModal();
     } catch (err: any) {
         console.error('Ошибка сохранения категории:', err);
-        
+
         if (err?.response?.data?.errors) {
             formErrors.value = err.response.data.errors;
         } else {
@@ -126,10 +128,10 @@ const deleteCategory = async (categoryId: number) => {
 
     try {
         await api.delete(`/admin/categories/${categoryId}`);
-        
+
         // Удаляем категорию из списка
         categories.value = categories.value.filter(c => c.id !== categoryId);
-        
+
         successMessage.value = 'Категория успешно удалена';
         setTimeout(() => {
             successMessage.value = null;

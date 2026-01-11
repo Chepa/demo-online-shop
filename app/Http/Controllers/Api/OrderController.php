@@ -7,9 +7,8 @@ use App\Http\Requests\Admin\UpdateStatusRequest;
 use App\Http\Requests\Shop\CreateOrder;
 use App\Models\Order;
 use App\Services\Order\OrderService;
-use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Throwable;
 
 class OrderController extends Controller
@@ -19,24 +18,20 @@ class OrderController extends Controller
     ) {
     }
 
-    public function index(Request $request)
+    public function index(Request $request): JsonResponse
     {
         try {
             $user = $request->user();
-            $orders = $this->orderService->getUserOrders($user);
+            $perPage = $request->integer('per_page', 10);
+            $orders = $this->orderService->getUserOrders($user, $perPage);
 
             return response()->json($orders);
         } catch (Throwable $exception) {
-            Log::error('[OrderController]: ' . $exception->getMessage());
-
-            return response()->json(['success' => false, 'message' => $exception->getMessage()]);
+            return $this->handleException($exception, 'OrderController');
         }
     }
 
-    /**
-     * @throws Exception
-     */
-    public function store(CreateOrder $request)
+    public function store(CreateOrder $request): JsonResponse
     {
         try {
             $user = $request->user();
@@ -44,35 +39,30 @@ class OrderController extends Controller
 
             return response()->json($order, 201);
         } catch (Throwable $exception) {
-            Log::error('[OrderController]: ' . $exception->getMessage());
-
-            return response()->json(['success' => false, 'message' => $exception->getMessage()]);
+            return $this->handleException($exception, 'OrderController');
         }
     }
 
-    public function adminIndex()
+    public function adminIndex(Request $request): JsonResponse
     {
         try {
-            $orders = $this->orderService->getAllOrders();
+            $perPage = $request->integer('per_page', 20);
+            $orders = $this->orderService->getAllOrders($perPage);
 
             return response()->json($orders);
         } catch (Throwable $exception) {
-            Log::error('[OrderController]: ' . $exception->getMessage());
-
-            return response()->json(['success' => false, 'message' => $exception->getMessage()]);
+            return $this->handleException($exception, 'OrderController');
         }
     }
 
-    public function updateStatus(UpdateStatusRequest $request, Order $order)
+    public function updateStatus(UpdateStatusRequest $request, Order $order): JsonResponse
     {
         try {
             $order = $this->orderService->updateOrderStatus($order, $request->get('status'));
 
             return response()->json($order);
         } catch (Throwable $exception) {
-            Log::error('[OrderController]: ' . $exception->getMessage());
-
-            return response()->json(['success' => false, 'message' => $exception->getMessage()]);
+            return $this->handleException($exception, 'OrderController');
         }
     }
 }

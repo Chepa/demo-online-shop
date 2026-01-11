@@ -8,7 +8,6 @@ use App\Http\Requests\Auth\RegisterRequest;
 use App\Services\Auth\AuthService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Throwable;
 
 class AuthController extends Controller
@@ -18,7 +17,7 @@ class AuthController extends Controller
     ) {
     }
 
-    public function register(RegisterRequest $request)
+    public function register(RegisterRequest $request): JsonResponse
     {
         try {
             $user = $this->authService->registerUser($request->validated());
@@ -32,13 +31,11 @@ class AuthController extends Controller
                 ]
             ], 201);
         } catch (Throwable $exception) {
-            Log::error('[AuthController]: ' . $exception->getMessage());
-
-            return response()->json(['success' => false, 'message' => $exception->getMessage()]);
+            return $this->handleException($exception, 'AuthController');
         }
     }
 
-    public function login(LoginRequest $request)
+    public function login(LoginRequest $request): JsonResponse
     {
         try {
             $user = $this->authService->loginUser($request->email, $request->password);
@@ -66,22 +63,18 @@ class AuthController extends Controller
                 ]
             ]);
         } catch (Throwable $exception) {
-            Log::error('[AuthController]: ' . $exception->getMessage());
-
-            return response()->json(['success' => false, 'message' => $exception->getMessage()]);
+            return $this->handleException($exception, 'AuthController');
         }
     }
 
-    public function logout()
+    public function logout(): JsonResponse
     {
         try {
             $this->authService->logoutUser();
 
             return response()->json(['success' => true]);
         } catch (Throwable $exception) {
-            Log::error('[AuthController]: ' . $exception->getMessage());
-
-            return response()->json(['success' => false, 'message' => $exception->getMessage()]);
+            return $this->handleException($exception, 'AuthController');
         }
     }
 
@@ -97,9 +90,7 @@ class AuthController extends Controller
                 ]
             ]);
         } catch (Throwable $exception) {
-            Log::error('[AuthController]: ' . $exception->getMessage());
-
-            return response()->json(['success' => false, 'message' => $exception->getMessage()]);
+            return $this->handleException($exception, 'AuthController');
         }
     }
 }

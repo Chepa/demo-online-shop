@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue';
-import { useRouter } from 'vue-router';
-import { useAuthStore } from '@/stores/auth';
+import {reactive, ref} from 'vue';
+import {useRouter} from 'vue-router';
+import {useAuthStore} from '@/stores/auth';
 
 const router = useRouter();
 const auth = useAuthStore();
@@ -10,9 +10,11 @@ const form = reactive({
     email: '',
     password: '',
     password_confirmation: '',
+    role: 'user',
 });
 const errors = ref<Record<string, string>>({});
 const processing = ref(false);
+const roles = ref<[string, string]>(['admin', 'user']);
 
 const submit = async () => {
     processing.value = true;
@@ -22,7 +24,8 @@ const submit = async () => {
             form.name,
             form.email,
             form.password,
-            form.password_confirmation
+            form.password_confirmation,
+            form.role,
         );
 
         if (response.success) {
@@ -103,6 +106,22 @@ const submit = async () => {
                         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                         :class="{ 'border-red-500': errors.password_confirmation }"
                     >
+                    <p v-if="errors.password_confirmation" class="mt-1 text-sm text-red-600">
+                        {{ errors.password_confirmation }}
+                    </p>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Роль</label>
+                    <select
+                        v-model="form.role"
+                        required
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                        :class="{ 'border-red-500': errors.password_confirmation }"
+                    >
+                        <option v-for="role in roles" :value="role">{{ role }}
+                        </option>
+                    </select>
                     <p v-if="errors.password_confirmation" class="mt-1 text-sm text-red-600">
                         {{ errors.password_confirmation }}
                     </p>

@@ -7,8 +7,8 @@ use App\Http\Requests\Admin\CreateProductRequest;
 use App\Http\Requests\Admin\UpdateProductRequest;
 use App\Models\Product;
 use App\Services\Catalog\ProductService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Throwable;
 
 class ProductController extends Controller
@@ -18,7 +18,7 @@ class ProductController extends Controller
     ) {
     }
 
-    public function index(Request $request)
+    public function index(Request $request): JsonResponse
     {
         try {
             $user = $request->user();
@@ -26,61 +26,52 @@ class ProductController extends Controller
 
             return response()->json($this->productService->getProducts($request, $isAdmin));
         } catch (Throwable $exception) {
-            Log::error('[ProductController]: ' . $exception->getMessage());
-
-            return response()->json(['success' => false, 'message' => $exception->getMessage()]);
+            return $this->handleException($exception, 'ProductController');
         }
     }
 
-    public function show(Product $product)
+    public function show(Product $product): JsonResponse
     {
         try {
-            $product = $this->productService->getProduct($product->id);
+            $product->load('category');
 
             return response()->json($product);
         } catch (Throwable $exception) {
-            Log::error('[ProductController]: ' . $exception->getMessage());
-
-            return response()->json(['success' => false, 'message' => $exception->getMessage()]);
+            return $this->handleException($exception, 'ProductController');
         }
     }
 
-    public function store(CreateProductRequest $request)
+    public function store(CreateProductRequest $request): JsonResponse
     {
         try {
             $product = $this->productService->createProduct($request->validated());
 
             return response()->json($product, 201);
         } catch (Throwable $exception) {
-            Log::error('[ProductController]: ' . $exception->getMessage());
-
-            return response()->json(['success' => false, 'message' => $exception->getMessage()]);
+            return $this->handleException($exception, 'ProductController');
         }
     }
 
-    public function update(UpdateProductRequest $request, Product $product)
+    public function update(UpdateProductRequest $request, Product $product): JsonResponse
     {
         try {
             $product = $this->productService->updateProduct($product, $request->validated());
+            $product->load('category');
 
             return response()->json($product);
         } catch (Throwable $exception) {
-            Log::error('[ProductController]: ' . $exception->getMessage());
-
-            return response()->json(['success' => false, 'message' => $exception->getMessage()]);
+            return $this->handleException($exception, 'ProductController');
         }
     }
 
-    public function destroy(Product $product)
+    public function destroy(Product $product): JsonResponse
     {
         try {
             $this->productService->deleteProduct($product);
 
             return response()->json([], 204);
         } catch (Throwable $exception) {
-            Log::error('[ProductController]: ' . $exception->getMessage());
-
-            return response()->json(['success' => false, 'message' => $exception->getMessage()]);
+            return $this->handleException($exception, 'ProductController');
         }
     }
 }

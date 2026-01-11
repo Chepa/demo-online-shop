@@ -12,7 +12,7 @@ class CartService
     public function getCartItems(User $user): Collection
     {
         return CartItem::query()
-            ->with('product')
+            ->with(['product.category'])
             ->where('user_id', $user->id)
             ->get();
     }
@@ -22,19 +22,36 @@ class CartService
         /** @var Product $product */
         $product = Product::findOrFail($productId);
 
+        // Проверка наличия товара на складе
+        if ($product->stock < $quantity) {
+            throw new \Exception("Недостаточно товара на складе. Доступно: {$product->stock}");
+        }
+
         $item = CartItem::query()->firstOrNew([
             'user_id' => $user->id,
             'product_id' => $product->id,
         ]);
 
-        $item->quantity = ($item->exists ? $item->quantity : 0) + $quantity;
+        $newQuantity = ($item->exists ? $item->quantity : 0) + $quantity;
+        
+        // Проверка доступного количества при добавлении
+        if ($product->stock < $newQuantity) {
+            throw new \Exception("Недостаточно товара на складе. Доступно: {$product->stock}");
+        }
+
+        $item->quantity = $newQuantity;
         $item->save();
 
-        return $item->load('product');
+        return $item->load(['product.category']);
     }
 
     public function updateCartItemQuantity(User $user, Product $product, int $quantity): CartItem
     {
+        // Проверка наличия товара на складе
+        if ($product->stock < $quantity) {
+            throw new \Exception("Недостаточно товара на складе. Доступно: {$product->stock}");
+        }
+
         $item = CartItem::query()->firstOrNew([
             'user_id' => $user->id,
             'product_id' => $product->id,
@@ -43,7 +60,7 @@ class CartService
         $item->quantity = $quantity;
         $item->save();
 
-        return $item->load('product');
+        return $item->load(['product.category']);
     }
 
     public function removeCartItem(User $user, Product $product): void

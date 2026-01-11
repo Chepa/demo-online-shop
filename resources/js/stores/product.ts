@@ -1,10 +1,10 @@
-import { defineStore } from 'pinia';
-import { ref } from 'vue';
-import { api } from '@/lib/api';
-import type { Category, Product, ProductFilters } from '@/types/product';
-import type { PaginationMeta, PaginationLink, PaginationData } from '@/types/pagination';
+import {defineStore} from 'pinia';
+import {ref} from 'vue';
+import {api} from '@/lib/api';
+import type {Category, Product, ProductFilters} from '@/types/product';
+import type {PaginationData, PaginationLink, PaginationMeta} from '@/types/pagination';
 
-export type { Category, Product, ProductFilters };
+export type {Category, Product, ProductFilters};
 
 export const useProductStore = defineStore('product', () => {
     const products = ref<Product[]>([]);
@@ -29,7 +29,7 @@ export const useProductStore = defineStore('product', () => {
         loading.value = true;
         try {
             if (productFilters) {
-                const { page, ...rest } = productFilters;
+                const {page, ...rest} = productFilters;
                 filters.value = rest;
                 if (page && page > 0) {
                     currentPage.value = page;
@@ -43,7 +43,7 @@ export const useProductStore = defineStore('product', () => {
             if (filters.value.max_price) params.max_price = filters.value.max_price;
             if (currentPage.value && currentPage.value > 1) params.page = currentPage.value;
 
-            const { data } = await api.get<PaginationData<Product> | Product[]>('/products', { params });
+            const {data} = await api.get<PaginationData<Product> | Product[]>('/products', {params});
 
             if (Array.isArray(data)) {
                 products.value = data;

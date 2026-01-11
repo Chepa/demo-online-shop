@@ -51,7 +51,7 @@ class Order extends Model
     public const string STATUS_PAID = 'paid';
     public const string STATUS_SHIPPED = 'shipped';
     public const string STATUS_COMPLETED = 'completed';
-    public const STATUS_CANCELLED = 'cancelled';
+    public const string STATUS_CANCELLED = 'cancelled';
 
     protected $fillable = [
         'user_id',
