@@ -22,7 +22,7 @@ docker exec app composer install
 docker exec app npm i
 
 # сборка проекта 
-docker exec app npm build
+docker exec app npm run build
 
 # Применение миграций
 docker exec app php artisan migrate
