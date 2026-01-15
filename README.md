@@ -1,18 +1,18 @@
 ## Online Shop
 
-### 1. Запуск Docker-контейнеров
+### 1. Настройка переменных окружения
+
+```bash
+cp .env.example .env
+```
+
+### 2. Запуск Docker-контейнеров
 
 ```bash
 docker compose up -d
 ```
 
-### 2. Настройка переменных окружения
-
-```bash
-cp src/.env.example src/.env
-```
-
-### 5. Установка зависимостей Laravel
+### 3. Установка Laravel
 
 ```bash
 # Установка PHP зависимостей
